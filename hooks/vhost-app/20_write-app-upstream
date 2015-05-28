@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ -n "$PLUSHU_TRACE" ]] && set -x
+
+app=$1
+app_dir=$PLUSHU_APPS_DIR/$app
+app_conf_dir=$PLUSHU_ROOT/nginx/http/apps/$app
+app_conf=$app_conf_dir/20_upstream.conf
+app_ip=$(docker inspect --format='{{.NetworkSettings.IPAddress}}' \
+  "$(<"$app_dir/proc/web.cid")")
+
+mkdir -p "$app_conf_dir"
+printf '%s\n' "upstream $app { server $app_ip:5000; }" >"$app_conf"
